@@ -59,7 +59,6 @@ router.put("/:id", authenticateToken, async (req, res) => {
     const productData = req.body;
 
     if (!(productData.name && productData.description && productData.price && productData.image)) {
-        // throw new Error("Fields missing");
         res.status(400).send("Some fields are missing");
         return;
     }
