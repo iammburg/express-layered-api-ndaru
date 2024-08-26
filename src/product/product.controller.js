@@ -4,6 +4,7 @@
 const express = require("express");
 const router = express.Router();
 const prisma = require("../db");
+const authenticateToken = require("../middleware/auth.middleware");
 const {
     getAllProduct,
     getProductById,
@@ -28,7 +29,7 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
     try {
         const newProductData = req.body;
         const product = await createProduct(newProductData);
@@ -42,7 +43,7 @@ router.post("/", async (req, res) => {
     }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const productId = req.params.id; // string
 
@@ -53,42 +54,29 @@ router.delete("/:id", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
     const productId = req.params.id;
     const productData = req.body;
 
-    if (
-        !(
-            productData.name &&
-            productData.description &&
-            productData.price &&
-            productData.image
-        )
-    ) {
+    if (!(productData.name && productData.description && productData.price && productData.image)) {
         // throw new Error("Fields missing");
         res.status(400).send("Some fields are missing");
         return;
     }
 
-    const product = await editProductById(
-        parseInt(productId),
-        productData
-    );
+    const product = await editProductById(parseInt(productId), productData);
     res.send({
         data: product,
         message: "Edit product success",
     });
 });
 
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticateToken, async (req, res) => {
     try {
         const productId = req.params.id;
         const productData = req.body;
 
-        const product = await editProductById(
-            parseInt(productId),
-            productData
-        );
+        const product = await editProductById(parseInt(productId), productData);
 
         res.send({
             data: product,
